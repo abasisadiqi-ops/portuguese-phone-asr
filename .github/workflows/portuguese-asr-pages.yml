@@ -27,14 +27,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '6abeb868773aad1374d899973499d77700aa6d896de3a779728e48d8d334b34f' 'phone-asr-source-v134.zip' | sha256sum -c -
+          printf '%s  %s\n' '45dfb686a5d7835d9945eded3d7e94da99068b7a1f56c6e69823a3c41b52fa33' 'phone-asr-source-v135.zip' | sha256sum -c -
           mkdir -p /tmp/portuguese-asr-pwa
           python3 - <<'PY'
           from pathlib import Path, PurePosixPath
           from zipfile import ZipFile
-          src=Path("phone-asr-source-v134.zip")
+          src=Path("phone-asr-source-v135.zip")
           with ZipFile(src) as z:
-              if 'src/scoring.mjs' not in z.namelist() or 'src/startup.mjs' not in z.namelist(): raise SystemExit('Missing vetted Tiny/Base scorer or startup diagnostics')
+              if not all(x in z.namelist() for x in ('src/scoring.mjs','src/startup.mjs','src/benchmark.mjs','src/language_registry.mjs','tools/evaluate_corpus.mjs','TRAINING_AND_MODEL_DECISIONS.md')): raise SystemExit('Missing vetted ASR scorer, startup diagnostics or corpus evidence gate')
               entries=z.infolist()
               if len(entries)>60: raise SystemExit("Too many archive entries")
               if sum(x.file_size for x in entries)>2000000: raise SystemExit("Unexpected archive size")
@@ -61,7 +61,10 @@ jobs:
           npm test
           npm run build
           node tools/check_dist.mjs
+          node tools/evaluate_corpus.mjs data/synthetic_manifest_example.json > /tmp/asr-synthetic-audit.json
+          node -e "const a=require('/tmp/asr-synthetic-audit.json');if(a.training_performed!==false||a.model_promoted!==false||a.study_minutes!==0||!Object.keys(a.paired_comparisons).length)process.exit(1)"
           grep -q 'Whisper Base' dist/index.html
+          grep -q 'WER / CER' dist/index.html
           grep -q 'Startup diagnostics' dist/index.html
           grep -q "navigation_strategy:'cache_first'" dist/sw.js
           grep -rq 'portuguese-asr-startup-v1' dist/assets/
