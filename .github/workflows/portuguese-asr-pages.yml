@@ -27,14 +27,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'e387a2d6000654f690a66fbbc7169c3ee03f29cd954ba35220cec548a59a845a' 'phone-asr-source-v141.zip' | sha256sum -c -
+          printf '%s  %s\n' '9b0b6d8734e0f246f6b0ab613f34cc2e8e0c5e19fefc853f5362f023b1663be5' 'phone-asr-source-v142.zip' | sha256sum -c -
           mkdir -p /tmp/portuguese-asr-pwa
           python3 - <<'PY'
           from pathlib import Path, PurePosixPath
           from zipfile import ZipFile
-          src=Path("phone-asr-source-v141.zip")
+          src=Path("phone-asr-source-v142.zip")
           with ZipFile(src) as z:
-              if not all(x in z.namelist() for x in ('src/scoring.mjs','src/startup.mjs','src/benchmark.mjs','src/language_registry.mjs','tools/evaluate_corpus.mjs','tools/stage_phone_observations.mjs','src/staging.mjs','src/model_planning.mjs','DESIGN_AND_MOTION.md','DESIGN_STUDIO_v137.md','LANGUAGE_EXPANSION_AND_DATA_ROADMAP.md','DEVELOPMENT_TIMELINE_2026.md','src/studio.css','src/storage_control.mjs','src/lifecycle.mjs','src/audio_visual.mjs','src/ui_preferences.mjs','src/script_text.mjs','src/presentation.mjs','src/data_contracts.mjs','src/conversation_core.mjs','src/conversation_ui.mjs','src/conversation_voice.mjs','src/local_dialogue_adapter.mjs','src/microphone_lease.mjs','src/speech_output.mjs','src/continuous_session.mjs','tests/continuous_session.test.mjs','tests/test_handsfree_browser.py','tests/produce_github_previews.py','CONVERSATION_HANDSFREE_ENGINEERING_v141.md','CONVERSATION_AND_VOICE_ARCHITECTURE_v140.md','DESIGN_SYSTEM_v139.md','ARCHITECTURE_FOUNDATION_v139.md','STORAGE_AND_DELETION_ARCHITECTURE.md','BACKGROUND_AND_NATIVE_ROADMAP.md','PRODUCT_DESIGN_RESEARCH_v138.md','MODEL_RESEARCH_v136.md','TRAINING_AND_MODEL_DECISIONS.md')): raise SystemExit('Missing vetted ASR scorer, startup diagnostics or corpus evidence gate')
+              if not all(x in z.namelist() for x in ('src/scoring.mjs','src/startup.mjs','src/benchmark.mjs','src/language_registry.mjs','tools/evaluate_corpus.mjs','tools/stage_phone_observations.mjs','src/staging.mjs','src/model_planning.mjs','DESIGN_AND_MOTION.md','DESIGN_STUDIO_v137.md','LANGUAGE_EXPANSION_AND_DATA_ROADMAP.md','DEVELOPMENT_TIMELINE_2026.md','src/studio.css','src/storage_control.mjs','src/lifecycle.mjs','src/audio_visual.mjs','src/ui_preferences.mjs','src/script_text.mjs','src/presentation.mjs','src/data_contracts.mjs','src/conversation_core.mjs','src/conversation_ui.mjs','src/conversation_voice.mjs','src/local_dialogue_adapter.mjs','src/microphone_lease.mjs','src/speech_output.mjs','src/continuous_session.mjs','src/adaptive_vad.mjs','tests/adaptive_vad.test.mjs','ADAPTIVE_VOICE_ENGINEERING_v142.md','tests/continuous_session.test.mjs','tests/test_handsfree_browser.py','tests/produce_github_previews.py','CONVERSATION_HANDSFREE_ENGINEERING_v141.md','CONVERSATION_AND_VOICE_ARCHITECTURE_v140.md','DESIGN_SYSTEM_v139.md','ARCHITECTURE_FOUNDATION_v139.md','STORAGE_AND_DELETION_ARCHITECTURE.md','BACKGROUND_AND_NATIVE_ROADMAP.md','PRODUCT_DESIGN_RESEARCH_v138.md','MODEL_RESEARCH_v136.md','TRAINING_AND_MODEL_DECISIONS.md')): raise SystemExit('Missing vetted ASR scorer, startup diagnostics or corpus evidence gate')
               entries=z.infolist()
               if len(entries)>90: raise SystemExit("Too many archive entries")
               if sum(x.file_size for x in entries)>2000000: raise SystemExit("Unexpected archive size")
@@ -67,6 +67,8 @@ jobs:
           grep -q 'Talk about' dist/index.html
           grep -q 'id="conversationVoiceStart"' dist/index.html
           grep -q 'id="handsfreeStart"' dist/index.html
+          grep -q 'Adaptive (experimental' dist/index.html
+          grep -rq 'detector_mode' dist/assets/
           grep -q 'id="handsfreeMute"' dist/index.html
           grep -q 'id="handsfreeAutoSend"' dist/index.html
           grep -rq 'Hands-free is on' dist/assets/
@@ -107,14 +109,14 @@ jobs:
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
             sleep 2
           done
-          PREVIEW_OUT=/tmp/verba-v141-previews /tmp/verba-preview-venv/bin/python tests/produce_github_previews.py
-          test "$(find /tmp/verba-v141-previews -maxdepth 1 -name '*.png' | wc -l)" -eq 8
+          PREVIEW_OUT=/tmp/verba-v142-previews /tmp/verba-preview-venv/bin/python tests/produce_github_previews.py
+          test "$(find /tmp/verba-v142-previews -maxdepth 1 -name '*.png' | wc -l)" -eq 8
 
       - name: Upload browser-rendered design previews (not generated images)
         uses: actions/upload-artifact@v4
         with:
-          name: verba-v141-browser-previews
-          path: /tmp/verba-v141-previews/*.png
+          name: verba-v142-browser-previews
+          path: /tmp/verba-v142-previews/*.png
           retention-days: 14
           if-no-files-found: error
 
