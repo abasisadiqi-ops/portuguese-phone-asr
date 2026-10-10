@@ -27,7 +27,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '37212e5e4ee7ecf0961f8d74e5c17506a512e0bd93da24ff308bf570ec84b854' 'phone-asr-source-v139.zip' | sha256sum -c -
+          printf '%s  %s\n' 'd4d1cce9f61e521db57b9e629e972a257afa915ad01af5a2c2869959da4bc12d' 'phone-asr-source-v139.zip' | sha256sum -c -
           mkdir -p /tmp/portuguese-asr-pwa
           python3 - <<'PY'
           from pathlib import Path, PurePosixPath
