@@ -1,5 +1,18 @@
 # Portuguese Local ASR Lab — phone-first deployment
 
+## v1.0.36 pre-release redesign + separate historical Hebrew vocalic track
+
+**Hold release.** The live GitHub Pages site continues to serve the previously verified v1.0.33 Tiny/Base phone app. v1.0.34 and v1.0.35 remain unshipped; this feature branch now stages the latest **v1.0.36** source and workflow. Its branch name keeps `v134` only for PR continuity. The ZIP required for CI is exactly `phone-asr-source-v136.zip` (SHA-256 `ddf803d9740b5de4eb19a4acca5cb820de50fbbbc7cc727123b0e9ce56ebbba6`). Older candidate ZIPs MUST NOT be uploaded.
+
+Changes in the **public isolated phone source**: bespoke research-lab interface with offline-friendly CSS animations (paused while idle, reduced-motion support), safer visible state, anchor navigation, richer typography and model-choice transparency; 1 TB iPhone disk size explicitly **does not guarantee** enough RAM/CacheStorage. Whisper Small planning is research-only, with `uint8` ~238 MB vs `q8` ~475 MB distinctions and **no automatic model promotion**. Existing Tiny/Base inference is preserved. The cache-first service worker and corpus audits remain included. **75/75** Node tests and **2/2** existing 390px Chromium flows plus responsive/reduced-motion checks passed locally. No model was trained and no new language enabled.
+
+The **private master** separately adds an historical Hebrew vowel-evidence lab: Iron Age, Second Temple, Tiberian, Palestinian, Babylonian and Samaritan evidence kept chronologically distinct. No historical pronunciation is inferred from consonantal spelling, no neural Hebrew ASR or synthetic ancient audio is claimed. Its source and personal research data **must never be copied to this public repository**. It has ten passing Node tests and an independent mobile Chromium synthetic-evidence rejection test.
+
+Design inspiration was researched, not copied: [Motion](https://www.motion.dev/) (MIT), [Lucide](https://github.com/lucide-icons/lucide) (ISC), [Noto Hebrew](https://github.com/notofonts/hebrew) (OFL), [ShadCN MIT layout template](https://github.com/shadcnstore/shadcn-dashboard-landing-template). No third-party fonts/images/libraries were added to the candidate site.
+
+**GitHub CI, production Vite build, and physical iPhone v1.0.36 behavior remain unverified.** This PR stays draft, feature-branch Pages deployment is prohibited, and the new source ZIP is still awaiting upload from iPhone. See `DESIGN_AND_MOTION.md` and `MODEL_RESEARCH_v136.md` after the ZIP is uploaded.
+
+
 ## Hold release: v1.0.35 combined offline-startup + ASR data-science candidate
 
 **v1.0.34 will not be separately published.** The user requested improving model choice, training-data quality and harder language coverage before the next release. Draft PR #2 now stages the combined v1.0.35 candidate. The branch retains its earlier v134 name for review continuity; the only valid archive to upload is `phone-asr-source-v135.zip` (SHA-256 `a967ab746ff300735e99149433d5b001b378437b7aeb190076e44a56944949b8`), not the superseded v134 archive.
