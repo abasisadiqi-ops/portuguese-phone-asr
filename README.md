@@ -1,5 +1,18 @@
 # Portuguese Local ASR Lab — phone-first deployment
 
+## v1.0.42 — adaptive voice safety & GitHub-backed preview gate (DRAFT)
+
+**No release or new model has been deployed.** The existing public iPhone Pages app remains user-verified v1.0.33 Tiny/Base. This development branch has both GitHub-native `research/v142` detector code with an automatically passed, no-deploy [GitHub test run](https://github.com/abasisadiqi-ops/portuguese-phone-asr/actions/runs/38080732219) and an optional adaptive-energy detector in the **separate isolated app source**.
+
+The latest source ZIP is `phone-asr-source-v142.zip` (89 files), SHA-256 **`e804aa784b3ae971fbdd8cb299cd5dbfa7d9c452cee16bd259f5cd5eda811cf4`**. It is **not yet uploaded** to this feature branch, so GitHub's **full Vite build and eight real-browser preview screenshots have not run**. The feature-branch GitHub workflow is SHA-pinned, the screenshot stage is required, and Pages deployment remains **main-only and separately opt-in**. Do not upload the private Multilingual Master checkpoint or any recordings.
+
+The opt-in **Adaptive (experimental; may miss speech)** sensitivity estimates background RMS noise; it is **not an actual speech classifier** and cannot promise robust separation of speech from fans/traffic/media. The normal fixed detector remains default. After the recorder yields the complete encoded turn, the microphone audio track is disabled during local ASR/generation/TTS, then re-enabled before listening resumes. **Mute/End stop the actual MediaStream tracks and revoke the exclusive mic lease**, while disabled tracks do NOT constitute hardware mic release. No continuous iOS background audio claimed. Manual review remains available for uncertain transcripts. No private conversation persistence or automatic study credit.
+
+**Local verification:** 155/155 JS tests and all six existing Chromium workflows passed (real browser MediaRecorder and audio; fake detector levels/Whisper/LLM). Local HTTP browser navigation is blocked by administrator policy, so compiling and capturing eight screenshots via GitHub is still a required acceptance gate. The preview script now navigates to Settings before changing light/dark appearance. Private historical Hebrew/Geʽez research, canonical 66-hour wake-relative learning plan and the tutor remain isolated and byte-identical.
+
+See `ADAPTIVE_VOICE_ENGINEERING_v142.md` in the ZIP and `research/v142/README.md` in this repository.
+
+
 ## v1.0.41 candidate — uninterrupted foreground conversation with actual microphone Mute (unreleased)
 
 The v1.0.41 source additionally arms MediaRecorder while listening to avoid chopping the first 320 ms of a spoken turn, rotates idle recordings to cap accumulated audio, and requires **eight** screenshots from a GitHub-run Chromium production preview across Conversation / Speak / Library / Research / Settings, both themes, and mobile/tablet viewports. Screenshot rendering is a required CI stage, not a best-effort step; real iPhone native microphone/model timing remains unverified.
