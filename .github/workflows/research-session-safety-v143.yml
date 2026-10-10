@@ -1,0 +1,46 @@
+name: Conversation lifecycle privacy regressions (no deployment)
+
+on:
+  push:
+    branches:
+      - feature/offline-cache-first-startup-v134-20261010
+    paths:
+      - 'research/v143/**'
+      - '.github/workflows/research-session-safety-v143.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  session-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check ephemeral session instrumentation
+        run: node --test research/v143/*.test.mjs
+      - name: Reject audio, identity and transcript data in published research
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f research/v143/session_metrics.mjs
+          test -f research/v143/session_metrics.test.mjs
+          if find research/v143 -type f \( -iname '*.wav' -o -iname '*.mp3' -o -iname '*.m4a' -o -iname '*.mp4' -o -iname '*.json' \) | grep -q .; then
+            echo 'Unexpected personal/voice artifacts'; exit 1
+          fi
+      - name: Emit downloadable plain-text CI evidence
+        shell: bash
+        run: |
+          mkdir -p /tmp/verba-evidence
+          node --test --test-reporter=tap research/v143/*.test.mjs > /tmp/verba-evidence/tests.tap
+          printf 'Unreleased v1.0.43 research-only tests\nNo iPhone or microphone proof\nNo public deployment\n' > /tmp/verba-evidence/README.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verba-v143-session-safety-reports
+          path: /tmp/verba-evidence/
+          retention-days: 14
+          if-no-files-found: error
