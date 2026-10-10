@@ -27,7 +27,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '2ccd8cdfae25dee8b591693e83a098d0514733795e5ca44a7c605ab1737ee361' 'phone-asr-source-v141.zip' | sha256sum -c -
+          printf '%s  %s\n' 'e387a2d6000654f690a66fbbc7169c3ee03f29cd954ba35220cec548a59a845a' 'phone-asr-source-v141.zip' | sha256sum -c -
           mkdir -p /tmp/portuguese-asr-pwa
           python3 - <<'PY'
           from pathlib import Path, PurePosixPath
@@ -94,29 +94,29 @@ jobs:
           grep -rq 'portuguese-asr-startup-v1' dist/assets/
           grep -rq 'onnx-community/whisper-base' dist/assets/
 
-      - name: Capture real built UI in Chromium (no model inference)
-        continue-on-error: true
+      - name: Capture real built UI in Chromium (required preview gate; no model inference)
         shell: bash
         working-directory: /tmp/portuguese-asr-pwa
         run: |
           set -euo pipefail
-          python3 -m pip install playwright==1.55.0
-          python3 -m playwright install --with-deps chromium
+          python3 -m venv /tmp/verba-preview-venv
+          /tmp/verba-preview-venv/bin/pip install --disable-pip-version-check playwright==1.55.0
+          /tmp/verba-preview-venv/bin/python -m playwright install --with-deps chromium
           npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/verba-preview-server.log 2>&1 &
           for i in $(seq 1 45); do
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
             sleep 2
           done
-          PREVIEW_OUT=/tmp/verba-v141-previews python3 tests/produce_github_previews.py
+          PREVIEW_OUT=/tmp/verba-v141-previews /tmp/verba-preview-venv/bin/python tests/produce_github_previews.py
+          test "$(find /tmp/verba-v141-previews -maxdepth 1 -name '*.png' | wc -l)" -eq 8
 
       - name: Upload browser-rendered design previews (not generated images)
         uses: actions/upload-artifact@v4
-        if: ${{ always() }}
         with:
           name: verba-v141-browser-previews
           path: /tmp/verba-v141-previews/*.png
           retention-days: 14
-          if-no-files-found: warn
+          if-no-files-found: error
 
       - name: Archive build results (not model weights or recordings)
         uses: actions/upload-artifact@v4
