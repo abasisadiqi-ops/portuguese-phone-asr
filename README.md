@@ -1,5 +1,20 @@
 # Portuguese Local ASR Lab — phone-first deployment
 
+## v1.0.40 — open conversation + opt-in local voice turn (draft, NOT deployed)
+
+The owner wants a genuinely **free-verse, natural dialogue** rather than lessons with assigned topics, especially for languages whose speakers are hard to find. The isolated public app source now includes an *experimental* Conversation workspace in which the user can freely introduce/abandon any subject; there is no grading, auto-correction, canned simulated partner, auto-credit, or default transcript persistence.
+
+**Actual architecture:** optional user-loaded `onnx-community/Qwen2.5-0.5B-Instruct` with Transformers.js WebGPU `q4f16` for text replies (device performance, speaking quality, offline behavior, model download and cache are **not yet iPhone verified**). Optional microphone turn requires existing Whisper Tiny/Base to be loaded in Speak, uses a shared microphone lease and real MediaRecorder, hands decoded speech to the local engine via a same-page event, then populates an **editable unverified draft**. Only a separate **Send** user action passes that text to the local generative model. No simultaneous foreground microphones, no auto-send, no audio upload/storage and no invented fallback response. Optional exact-locale device TTS is user-triggered; native voice quality/offline status NOT attested.
+
+**Languages:** pt-PT and pt-BR are only **experimental dialogue candidates**, not validated native-quality Portuguese conversation. Mehri, Shehri, Soqotri, historical Hebrew, Geʽez, Southern Bantu languages, Afrikaans and other requested targets stay in the separate research/evaluation registry, **not silently enabled for generated conversations** without appropriate human-reviewed competence and pronunciation data.
+
+**Recorded browser verification:** local 135/135 Node tests; five Chromium tests including real encoded browser microphone audio, editable transcription review, mock conversational model with two-turn context, background interruption discard, and existing ASR/comparison/storage/theme tests. 164 other project regression tests separately passed (299 total), including the original 66-hour wake-relative learner and private Hebrew/Geʽez research. These tests do NOT exercise real Whisper/Qwen inference or prove Safari off-app processing.
+
+**Upload gate:** owner uploads `phone-asr-source-v140.zip` to feature branch root `feature/offline-cache-first-startup-v134-20261010`. SHA-256 **`45ee781103f03b538b02ae2a6787fc458c41a3a237aa5ea7a3323a633e9c0d9e`** (81 isolated source files; no private Master). Candidate workflow checks checksum, Node suite and compiled source features. **Feature-branch publication is prohibited**, and ZIP has not yet been uploaded. Public site remains proven v1.0.33 Tiny/Base. Do not merge/publish before GitHub production build and human device review.
+
+The owner explicitly does **not** want ChatGPT-generated design imagery or native ChatGPT mockups. Visual work should occur only in code and real browser/device testing, without using image-generation output as evidence of quality. See `CONVERSATION_AND_VOICE_ARCHITECTURE_v140.md` inside the source ZIP.
+
+
 ## v1.0.39 — VERBA visual, multiscript and data contracts (DRAFT, not deployed)
 
 **This supersedes all earlier candidate v134–v138 source ZIPs in this draft PR.** The only file to upload is `phone-asr-source-v139.zip` to feature branch `feature/offline-cache-first-startup-v134-20261010` (historical branch name retained for review continuity); SHA-256 `d4d1cce9f61e521db57b9e629e972a257afa915ad01af5a2c2869959da4bc12d`.
