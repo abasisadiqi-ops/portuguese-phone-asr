@@ -27,13 +27,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'ca00f08b5c3319a1cfb7101cd69300d2dcacdf9fd6cf9f6bc0b8de5684a06a2f' 'phone-asr-source.zip' | sha256sum -c -
+          printf '%s  %s\n' '4cfb32e971eca6a1539f42545d99a575b2dc73302af7f9b947eefb7e8c4d9184' 'phone-asr-source-v133.zip' | sha256sum -c -
           mkdir -p /tmp/portuguese-asr-pwa
           python3 - <<'PY'
           from pathlib import Path, PurePosixPath
           from zipfile import ZipFile
-          src=Path("phone-asr-source.zip")
+          src=Path("phone-asr-source-v133.zip")
           with ZipFile(src) as z:
+              if 'src/scoring.mjs' not in z.namelist(): raise SystemExit('Missing vetted Tiny/Base scorer')
               entries=z.infolist()
               if len(entries)>60: raise SystemExit("Too many archive entries")
               if sum(x.file_size for x in entries)>2000000: raise SystemExit("Unexpected archive size")
@@ -60,6 +61,8 @@ jobs:
           npm test
           npm run build
           node tools/check_dist.mjs
+          grep -q 'Whisper Base' dist/index.html
+          grep -rq 'onnx-community/whisper-base' dist/assets/
 
       - name: Archive build results (not model weights or recordings)
         uses: actions/upload-artifact@v4

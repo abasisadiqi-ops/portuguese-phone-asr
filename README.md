@@ -1,5 +1,14 @@
 # Portuguese Local ASR Lab — phone-first deployment
 
+## v1.0.33 candidate: Tiny / Base comparison (review before deployment)
+
+The **live Pages site still uses the previous Tiny-only release**. A separate feature branch proposes Whisper Base alongside Tiny with **same-recording** comparison, optional **user-entered** reference transcript, transparent word-error rate (Portuguese accents preserved), per-model latency and manual JSON export. Models load **sequentially** to reduce memory use. No model may score or credit learner hours.
+
+**User-observed milestone:** The earlier Tiny CPU/WASM site reportedly transcribed a Portuguese sentence after a physical iPhone Home Screen cold reopen in Airplane Mode with Wi-Fi off (1.469 s). This was not independently network-attested and does not establish Base offline performance.
+
+**To trial the candidate without replacing the working app:** Upload the independently supplied `phone-asr-source-v133.zip` to the `feature/whisper-base-same-clip-v133-20261010` branch root (not the private master repository). The workflow on that branch verifies SHA-256 `4cfb32e971eca6a1539f42545d99a575b2dc73302af7f9b947eefb7e8c4d9184`, executes 45 JavaScript tests, compiles the app, checks the Base UI and model bundle, and uploads the build artifact. Run with `deploy_pages=false`; the live site must not change until this succeeds. Source-only and mocked-browser tests do **not** prove real Base iPhone inference. After reviewing the PR and testing, a deliberate separate Pages deployment can be authorized.
+
+
 **Scope:** a public, isolated experiment for local Portuguese speech recognition in iPhone Safari. This repository intentionally does not contain the private Multilingual Master archive, learning history, recordings, speaker identifiers, model weights, or study progress.
 
 ## State as of 10 October 2026
