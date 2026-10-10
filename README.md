@@ -1,5 +1,20 @@
 # Portuguese Local ASR Lab — phone-first deployment
 
+## v1.0.41 candidate — uninterrupted foreground conversation with actual microphone Mute (unreleased)
+
+The owner wants **one Start**, natural in-app conversation, an explicit **Mute**, and no push-to-talk per sentence. We are retaining v1.0.33 as the working published site until this candidate is independently tested. No ChatGPT-generated design imagery; previews are produced by GitHub Actions running Chromium against compiled app code.
+
+**Architecture:** `src/continuous_session.mjs` owns a foreground-only Web Audio RMS speech/silence detector, a shared single-microphone lease and successive MediaRecorder clips. A short utterance is recognized by the already-loaded Whisper engine; with the visible opt-in auto-send mode, the unverified text goes to the separately loaded local generative model, then an exact-locale system TTS voice may speak the reply. The detector resumes automatically. No need to press Record or Stop for individual turns. With auto-send OFF, the UI yields one editable draft for human review and releases continuous capture. Each session is half-duplex, NOT full overlapping/barge-in conversation.
+
+**Mute stops microphone tracks** (does not merely set `enabled=false`). Unmute explicitly reacquires the microphone and retains prior dialogue context. Ending, leaving Conversation, and hiding/backgrounding release the microphone and discard any incomplete clip. Neither iOS background recording nor system speech quality is claimed. Avoid TTS feedback through headphones. No automatic persistence, voice upload, training data, or study minutes.
+
+**Local evidence:** **144/144** JavaScript tests passed and **6/6** real Chromium browser workflows passed. The hands-free browser workflow records actual encoded microphone audio but injects a synthetic speech-energy signal, mock Whisper transcription and mock generative replies. It proves session transitions and mute handling, **not real iPhone voice activity detection, live Whisper+Qwen coexistence, echo cancellation or five-minute continuous performance**.
+
+**Upload-only source:** `phone-asr-source-v141.zip` SHA-256 `e62bde4305a2dc4f620c9aefbb01ddae95417019d3df82c467ad4c33514f705f` (86 isolated files; no private master data). Upload to PR head `feature/offline-cache-first-startup-v134-20261010`. GitHub candidate CI checks source SHA, builds, runs tests and tries to create a `verba-v141-browser-previews` artifact with **real compiled HTML/CSS screenshots**. Screenshots are not image generation and may fail independently without changing build tests. **Zip has not been uploaded yet. GitHub production build and screenshot artifacts have NOT run. Feature-branch Pages publishing is disabled, even if the manual flag is enabled.** Use `deploy_pages=false`.
+
+See `CONVERSATION_HANDSFREE_ENGINEERING_v141.md` and `tests/produce_github_previews.py` inside the ZIP. Private Hebrew/Geʽez reconstruction and the 66-hour tutor remain only in the separate private master checkpoint.
+
+
 ## v1.0.40 — open conversation + opt-in local voice turn (draft, NOT deployed)
 
 The owner wants a genuinely **free-verse, natural dialogue** rather than lessons with assigned topics, especially for languages whose speakers are hard to find. The isolated public app source now includes an *experimental* Conversation workspace in which the user can freely introduce/abandon any subject; there is no grading, auto-correction, canned simulated partner, auto-credit, or default transcript persistence.
