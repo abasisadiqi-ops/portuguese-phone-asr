@@ -1,5 +1,16 @@
 # Portuguese Local ASR Lab — phone-first deployment
 
+## Hold release: v1.0.35 combined offline-startup + ASR data-science candidate
+
+**v1.0.34 will not be separately published.** The user requested improving model choice, training-data quality and harder language coverage before the next release. Draft PR #2 now stages the combined v1.0.35 candidate. The branch retains its earlier v134 name for review continuity; the only valid archive to upload is `phone-asr-source-v135.zip` (SHA-256 `45dfb686a5d7835d9945eded3d7e94da99068b7a1f56c6e69823a3c41b52fa33`), not the superseded v134 archive.
+
+The combination preserves the **unpublished** cache-first startup change and read-only iOS navigation diagnostics. It adds orthography-preserving grapheme CER alongside WER, a language token-vs-verified capability registry (Arabic/Modern Greek/Hebrew/Amharic/Malagasy research targets; Tigrinya/Geʽez/Ancient Greek not passed off as supported), an offline corpus aggregation CLI, synthetic manifest fixtures, explicit rights/consent/speaker/session split-leakage checks, and a model decision hold gate until sufficient independent paired clips exist. Training is **NOT** performed, Whisper Small is **NOT** enabled, and the iPhone app remains **Portuguese-only**.
+
+Local tests: **65/65 JavaScript unit tests**, **2/2 Chromium 390px mock-model interaction tests**. **GitHub Vite production build, cache-first iPhone cold-start speed, other languages' on-device inference, and any trained model are unverified.** The feature workflow will check the exact ZIP checksum, run tests and a synthetic-data-only audit, compile production assets, and **cannot publish from this feature branch**. Keep manual `deploy_pages=false`.
+
+Do not upload recordings, private transcripts, speaker identities, or original Multilingual Master files to this public repository. The public sample corpus file contains invented hashes and generated labels only. See `TRAINING_AND_MODEL_DECISIONS.md` inside the candidate archive for evidence/training policy. The verified live v1.0.33 Tiny/Base website and separate manually authorized Tiny rollback flow remain unchanged.
+
+
 ## v1.0.34 candidate: fast offline app-shell startup (NOT YET PUBLISHED)
 
 **Corrected user observation:** the installed Home Screen **app itself** required roughly 1–3 minutes to reopen in Airplane Mode with Wi-Fi switched off; **Whisper Base loaded in under 10 seconds after the app appeared**. Previously conflating those two latencies was incorrect. Both Whisper Tiny and Base inference were user-observed after offline restarts; network state remains independently `NOT_ATTESTED`.
