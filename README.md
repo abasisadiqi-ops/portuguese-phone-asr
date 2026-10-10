@@ -1,1 +1,30 @@
-# portuguese-phone-asr
+# Portuguese Local ASR Lab — phone-first deployment
+
+**Scope:** a public, isolated experiment for local Portuguese speech recognition in iPhone Safari. This repository intentionally does not contain the private Multilingual Master archive, learning history, recordings, speaker identifiers, model weights, or study progress.
+
+## State as of 10 October 2026
+
+- The **same isolated source ZIP** passed 35 JavaScript tests and a real Vite production build in the private repository's GitHub Actions run [#38043829866](https://github.com/abasisadiqi-ops/arabic-audio-lab/actions/runs/38043829866). That result is not an iPhone inference test.
+- This public repository contains a SHA-256-pinned copy of `phone-asr-source.zip`, sourced from the existing private repository without copying any master learning records.
+- Actual on-device model inference, Portuguese recognition accuracy, and offline persistence after a Safari/Home Screen restart are **not yet verified**.
+
+## Publish from an iPhone — no Mac, Xcode, or native signing
+
+1. On GitHub, open **Settings → Pages** for this public repository. Set **Source → GitHub Actions**. Do not change the private master repository's visibility.
+2. Open **Actions → Build or publish Portuguese ASR PWA → Run workflow**. Use branch `main` and explicitly set `deploy_pages = true`.
+3. Wait for the `build` and `publish` jobs to finish. If either fails, inspect the workflow logs and fix the cause before claiming deployment.
+4. Open the GitHub Pages HTTPS URL reported by the successful `publish` job in **Safari**. Use **Share → Add to Home Screen**, then open the installed web app.
+5. For the first experiment, select **CPU / WASM**, download **Whisper Tiny multilingual** while connected to Wi-Fi, record or import a short Portuguese sample, and transcribe online.
+6. Enable **Airplane Mode**, switch Wi-Fi **off**, fully close and reopen the Home Screen app, then transcribe a **different** short sample using the same backend. A working offline splash screen is not proof the speech model works offline.
+7. Export the JSON observation. It is a diagnostic only: it does not certify airplane mode, determine a PT-PT/PT-BR accent, or grant study hours.
+
+## Privacy, limits, and source integrity
+
+- This is a **public repository and potentially a publicly accessible website**. No secrecy or obscurity is assumed.
+- The app processes imported audio in the browser. It does not intentionally send recordings to a server, but it fetches model files from Hugging Face during initial setup, and iOS/browser-level network behavior has not been audited by packet capture.
+- iOS may evict browser cache; CPU and GPU downloads can be different. Offline inference needs to be re-proven after browser updates or cache loss.
+- The app currently transcribes Portuguese with `onnx-community/whisper-tiny`, and the PT-PT / PT-BR selector labels evaluation datasets rather than classifying accents.
+- The workflow checks the source ZIP SHA-256: `ca00f08b5c3319a1cfb7101cd69300d2dcacdf9fd6cf9f6bc0b8de5684a06a2f`. Modified source requires an audited update of this pinned digest.
+- No test result, transcript, synthetic audio or ASR receipt automatically changes the authoritative 66-hour learning programme.
+
+**This app is experimental.** A successful GitHub build or successful online inference is not evidence of a fully offline iPhone speech tutor.
