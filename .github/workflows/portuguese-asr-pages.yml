@@ -27,14 +27,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'ddf803d9740b5de4eb19a4acca5cb820de50fbbbc7cc727123b0e9ce56ebbba6' 'phone-asr-source-v136.zip' | sha256sum -c -
+          printf '%s  %s\n' 'c1217ab9ae0d46fe6e039c6d42584dc7ab7af6c4174b11f11fe7502c821d45d7' 'phone-asr-source-v137.zip' | sha256sum -c -
           mkdir -p /tmp/portuguese-asr-pwa
           python3 - <<'PY'
           from pathlib import Path, PurePosixPath
           from zipfile import ZipFile
-          src=Path("phone-asr-source-v136.zip")
+          src=Path("phone-asr-source-v137.zip")
           with ZipFile(src) as z:
-              if not all(x in z.namelist() for x in ('src/scoring.mjs','src/startup.mjs','src/benchmark.mjs','src/language_registry.mjs','tools/evaluate_corpus.mjs','tools/stage_phone_observations.mjs','src/staging.mjs','src/model_planning.mjs','DESIGN_AND_MOTION.md','MODEL_RESEARCH_v136.md','TRAINING_AND_MODEL_DECISIONS.md')): raise SystemExit('Missing vetted ASR scorer, startup diagnostics or corpus evidence gate')
+              if not all(x in z.namelist() for x in ('src/scoring.mjs','src/startup.mjs','src/benchmark.mjs','src/language_registry.mjs','tools/evaluate_corpus.mjs','tools/stage_phone_observations.mjs','src/staging.mjs','src/model_planning.mjs','DESIGN_AND_MOTION.md','DESIGN_STUDIO_v137.md','LANGUAGE_EXPANSION_AND_DATA_ROADMAP.md','DEVELOPMENT_TIMELINE_2026.md','src/studio.css','MODEL_RESEARCH_v136.md','TRAINING_AND_MODEL_DECISIONS.md')): raise SystemExit('Missing vetted ASR scorer, startup diagnostics or corpus evidence gate')
               entries=z.infolist()
               if len(entries)>60: raise SystemExit("Too many archive entries")
               if sum(x.file_size for x in entries)>2000000: raise SystemExit("Unexpected archive size")
@@ -64,7 +64,10 @@ jobs:
           node tools/evaluate_corpus.mjs data/synthetic_manifest_example.json > /tmp/asr-synthetic-audit.json
           node -e "const a=require('/tmp/asr-synthetic-audit.json');if(a.training_performed!==false||a.model_promoted!==false||a.study_minutes!==0||!Object.keys(a.paired_comparisons).length)process.exit(1)"
           grep -q 'Whisper Base' dist/index.html
-          grep -q 'VOICE ATLAS' dist/index.html
+          grep -q 'Listen closely.' dist/index.html
+          find dist/assets -type f -name '*.css' | grep -q .
+          grep -rq 'color-scheme:light' dist/assets/
+          node -e "import('./src/language_registry.mjs').then(x=>{if(!['gdq','shv','sqt','hss','hoh','bhm','nso-ZA','st-ZA','ve-ZA','af-ZA'].every(t=>!x.canEnableOnPhone(t)))process.exit(1)})"
           grep -q 'prefers-reduced-motion' dist/index.html
           grep -q 'Whisper Small' dist/index.html
           grep -q 'WER / CER' dist/index.html
