@@ -1,5 +1,20 @@
 # Portuguese Local ASR Lab — phone-first deployment
 
+## v1.0.34 candidate: fast offline app-shell startup (NOT YET PUBLISHED)
+
+**Corrected user observation:** the installed Home Screen **app itself** required roughly 1–3 minutes to reopen in Airplane Mode with Wi-Fi switched off; **Whisper Base loaded in under 10 seconds after the app appeared**. Previously conflating those two latencies was incorrect. Both Whisper Tiny and Base inference were user-observed after offline restarts; network state remains independently `NOT_ATTESTED`.
+
+**Hypothesis:** v1.0.33's service worker tries a navigation network request before its cached HTML and can therefore wait for an iOS offline request timeout even with the complete shell cached. This is a code-path diagnosis, not a measured profiler trace.
+
+**Patch and measurement:** v1.0.34 returns the version-matched cached HTML immediately, retaining all existing WASM precaching, Hugging Face model cache, recording and zero-learning-credit policies. A new read-only startup export reports Navigation Timing, a cache-first worker-version handshake, and an unverified online hint. It does not time iOS process launch or independently certify Airplane Mode.
+
+**Verified locally:** 54/54 JavaScript tests and two Chromium 390px UI tests (neural inference mocked). **GitHub production build and faster iPhone offline cold-start remain unverified.** The candidate artifact expected at the feature branch root is `phone-asr-source-v134.zip`, SHA-256 `6abeb868773aad1374d899973499d77700aa6d896de3a779728e48d8d334b34f`.
+
+**Rollout gate:** upload v134 ZIP on `feature/offline-cache-first-startup-v134-20261010`; manually run `Build or publish Portuguese ASR PWA` on the branch with `deploy_pages=false`. Publishing from a feature branch is prohibited at workflow level. Only consider merging after 54/54 CI tests and production build pass. Merge does not publish; a separate manual `main` deployment opt-in is still necessary. Keep the working Tiny/Base Pages site live until then. `Restore verified Tiny-only` remains separate and manual.
+
+After publishing, load the new app **online twice** so a waiting service worker can activate without forced tab replacement. Close the Home Screen app, switch to Airplane Mode with Wi-Fi off, reopen, measure wall-clock startup and export `portuguese-asr-startup-diagnostics.json`. Confirm `cache_first_worker_verified:true` before drawing a speed conclusion. Do not clear model data.
+
+
 ## v1.0.33 candidate: Tiny / Base comparison (review before deployment)
 
 The **live Pages site still uses the previous Tiny-only release**. A separate feature branch proposes Whisper Base alongside Tiny with **same-recording** comparison, optional **user-entered** reference transcript, transparent word-error rate (Portuguese accents preserved), per-model latency and manual JSON export. Models load **sequentially** to reduce memory use. No model may score or credit learner hours.
