@@ -27,14 +27,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '4cfb32e971eca6a1539f42545d99a575b2dc73302af7f9b947eefb7e8c4d9184' 'phone-asr-source-v133.zip' | sha256sum -c -
+          printf '%s  %s\n' '6abeb868773aad1374d899973499d77700aa6d896de3a779728e48d8d334b34f' 'phone-asr-source-v134.zip' | sha256sum -c -
           mkdir -p /tmp/portuguese-asr-pwa
           python3 - <<'PY'
           from pathlib import Path, PurePosixPath
           from zipfile import ZipFile
-          src=Path("phone-asr-source-v133.zip")
+          src=Path("phone-asr-source-v134.zip")
           with ZipFile(src) as z:
-              if 'src/scoring.mjs' not in z.namelist(): raise SystemExit('Missing vetted Tiny/Base scorer')
+              if 'src/scoring.mjs' not in z.namelist() or 'src/startup.mjs' not in z.namelist(): raise SystemExit('Missing vetted Tiny/Base scorer or startup diagnostics')
               entries=z.infolist()
               if len(entries)>60: raise SystemExit("Too many archive entries")
               if sum(x.file_size for x in entries)>2000000: raise SystemExit("Unexpected archive size")
@@ -62,6 +62,9 @@ jobs:
           npm run build
           node tools/check_dist.mjs
           grep -q 'Whisper Base' dist/index.html
+          grep -q 'Startup diagnostics' dist/index.html
+          grep -q "navigation_strategy:'cache_first'" dist/sw.js
+          grep -rq 'portuguese-asr-startup-v1' dist/assets/
           grep -rq 'onnx-community/whisper-base' dist/assets/
 
       - name: Archive build results (not model weights or recordings)
@@ -73,17 +76,17 @@ jobs:
           if-no-files-found: error
 
       - name: Configure GitHub Pages
-        if: ${{ inputs.deploy_pages }}
+        if: ${{ inputs.deploy_pages && github.ref == 'refs/heads/main' }}
         uses: actions/configure-pages@v5
 
       - name: Stage website for Pages only when authorized
-        if: ${{ inputs.deploy_pages }}
+        if: ${{ inputs.deploy_pages && github.ref == 'refs/heads/main' }}
         uses: actions/upload-pages-artifact@v4
         with:
           path: /tmp/portuguese-asr-pwa/dist/
 
   publish:
-    if: ${{ inputs.deploy_pages }}
+    if: ${{ inputs.deploy_pages && github.ref == 'refs/heads/main' }}
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
