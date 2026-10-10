@@ -2,7 +2,7 @@
 
 ## v1.0.39 — VERBA visual, multiscript and data contracts (DRAFT, not deployed)
 
-**This supersedes all earlier candidate v134–v138 source ZIPs in this draft PR.** The only file to upload is `phone-asr-source-v139.zip` to feature branch `feature/offline-cache-first-startup-v134-20261010` (historical branch name retained for review continuity); SHA-256 `37212e5e4ee7ecf0961f8d74e5c17506a512e0bd93da24ff308bf570ec84b854`.
+**This supersedes all earlier candidate v134–v138 source ZIPs in this draft PR.** The only file to upload is `phone-asr-source-v139.zip` to feature branch `feature/offline-cache-first-startup-v134-20261010` (historical branch name retained for review continuity); SHA-256 `d4d1cce9f61e521db57b9e629e972a257afa915ad01af5a2c2869959da4bc12d`.
 
 **As of preparation the file is NOT on GitHub, GitHub Vite production build has NOT run, and the public site remains the user-verified v1.0.33 Tiny/Base release.** Feature branch Pages publication is hard-blocked, even if the dispatch switch is enabled. Owner should dispatch with `deploy_pages=false` only after uploading the exact ZIP.
 
