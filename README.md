@@ -1,5 +1,20 @@
 # Portuguese Local ASR Lab — phone-first deployment
 
+## v1.0.39 — VERBA visual, multiscript and data contracts (DRAFT, not deployed)
+
+**This supersedes all earlier candidate v134–v138 source ZIPs in this draft PR.** The only file to upload is `phone-asr-source-v139.zip` to feature branch `feature/offline-cache-first-startup-v134-20261010` (historical branch name retained for review continuity); SHA-256 `37212e5e4ee7ecf0961f8d74e5c17506a512e0bd93da24ff308bf570ec84b854`.
+
+**As of preparation the file is NOT on GitHub, GitHub Vite production build has NOT run, and the public site remains the user-verified v1.0.33 Tiny/Base release.** Feature branch Pages publication is hard-blocked, even if the dispatch switch is enabled. Owner should dispatch with `deploy_pages=false` only after uploading the exact ZIP.
+
+The candidate is a serious interface reset, not another gradient sticker: **one CSS system** replaces legacy dark inline CSS and stacked overrides; distinct semantic light/dark palettes with user override and system-following; academic serif/sans typography; adjustable reader type; an accessible five-anchor flow with actual PCM waveform; script specimen reader with explicit `lang` + `dir` for Arabic/Hebrew/Ethiopic/Greek/Portuguese, and source warnings so typography is not confused with historical phonology. **The English shell remains LTR; this is NOT yet a fully localized RTL interface**. Reduced motion and 320/390/768px responsive testing included. No third-party templates, fonts, voice recordings or private study files in the public source.
+
+Modular additions: `src/ui_preferences.mjs` (allowlisted, non-sensitive namespaced UI preferences and safe storage fallback), `src/script_text.mjs` (unverified constructed specimens), `src/presentation.mjs` (theme and direction, without direct access to Whisper/MediaRecorder), `src/data_contracts.mjs` (storage classes + fail-closed *deletion planning* metadata—not a claim of physical erasure). Existing ASR, corpus audit, 66h authoritative tutor, encrypted clip vault, model/cache-deletion implementation and cache-first SW preserved. No new ASR model, corpus training, ancient pronunciation reconstruction or native background audio is claimed.
+
+**Validated locally:** 114/114 Node tests + four browser tests: synthetic real WAV decode, browser MediaRecorder oscillator, mock Tiny/Base same-audio comparison, simulated CacheStorage deletion, and the light/dark/RTL/reduced-motion layout test. Total other verified test suites 164, yielding 278 across enumerated suites. These are not iPhone model/runtime tests. The local npm registry is unavailable (`EAI_AGAIN`), so the production Vite build must be proven via GitHub CI.
+
+See `DESIGN_SYSTEM_v139.md` and `ARCHITECTURE_FOUNDATION_v139.md` in the new ZIP. This public repository remains separate from the PRIVATE Geʽez/Hebrew research modules and original user study data.
+
+
 ## v1.0.38 (candidate) — storage, deletion, privacy and lifecycle, no release yet
 
 Owner prioritizes fundamental architecture, not another premature public release. The working public website remains **v1.0.33**. This branch now tests **v1.0.38** (old branch name retained). Expect **`phone-asr-source-v138.zip`** SHA-256 **`002e169d7950c06346c2869849bd996985970b0ac403d1042fae204f885b44c2`** in this feature branch root. Do NOT upload this private Multilingual Master ZIP or a personal recording. ZIP not yet uploaded; GitHub CI and actual Safari execution remain unverified.
