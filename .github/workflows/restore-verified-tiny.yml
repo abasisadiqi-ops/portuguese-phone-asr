@@ -1,0 +1,97 @@
+name: Restore verified Tiny-only Portuguese ASR (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      restore_tiny:
+        description: "REPLACE public website with earlier verified Tiny-only release?"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portuguese-asr-site
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify and extract audited isolated source
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'ca00f08b5c3319a1cfb7101cd69300d2dcacdf9fd6cf9f6bc0b8de5684a06a2f' 'phone-asr-source.zip' | sha256sum -c -
+          mkdir -p /tmp/portuguese-asr-pwa
+          python3 - <<'PY'
+          from pathlib import Path, PurePosixPath
+          from zipfile import ZipFile
+          src=Path("phone-asr-source.zip")
+          with ZipFile(src) as z:
+              entries=z.infolist()
+              if len(entries)>60: raise SystemExit("Too many archive entries")
+              if sum(x.file_size for x in entries)>2000000: raise SystemExit("Unexpected archive size")
+              for entry in entries:
+                  n=entry.filename
+                  parts=PurePosixPath(n).parts
+                  kind=(entry.external_attr >> 16) & 0o170000
+                  if not parts or n.startswith("/") or "\\" in n or ".." in parts or kind==0o120000 or (kind not in (0,0o100000,0o040000)):
+                      raise SystemExit("Unsafe path or file type: "+n)
+                  if any(part.upper() in ("LEARNING","HISTORY","WORKING","NODE_MODULES") for part in parts) or "PROGRAM_STATE" in n.upper():
+                      raise SystemExit("Private or generated content: "+n)
+              z.extractall("/tmp/portuguese-asr-pwa")
+          PY
+          test -f /tmp/portuguese-asr-pwa/package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Rebuild previously verified Tiny-only website
+        working-directory: /tmp/portuguese-asr-pwa
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+          npm run build
+          node tools/check_dist.mjs
+
+      - name: Archive build results (not model weights or recordings)
+        uses: actions/upload-artifact@v4
+        with:
+          name: verified-tiny-rollback-build
+          path: /tmp/portuguese-asr-pwa/dist/
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Configure GitHub Pages
+        if: ${{ inputs.restore_tiny }}
+        uses: actions/configure-pages@v5
+
+      - name: Stage website for Pages only when authorized
+        if: ${{ inputs.restore_tiny }}
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: /tmp/portuguese-asr-pwa/dist/
+
+  publish:
+    if: ${{ inputs.restore_tiny }}
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy isolated website
+        id: deploy
+        uses: actions/deploy-pages@v4
