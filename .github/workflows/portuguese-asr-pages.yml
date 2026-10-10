@@ -27,14 +27,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '45dfb686a5d7835d9945eded3d7e94da99068b7a1f56c6e69823a3c41b52fa33' 'phone-asr-source-v135.zip' | sha256sum -c -
+          printf '%s  %s\n' 'a967ab746ff300735e99149433d5b001b378437b7aeb190076e44a56944949b8' 'phone-asr-source-v135.zip' | sha256sum -c -
           mkdir -p /tmp/portuguese-asr-pwa
           python3 - <<'PY'
           from pathlib import Path, PurePosixPath
           from zipfile import ZipFile
           src=Path("phone-asr-source-v135.zip")
           with ZipFile(src) as z:
-              if not all(x in z.namelist() for x in ('src/scoring.mjs','src/startup.mjs','src/benchmark.mjs','src/language_registry.mjs','tools/evaluate_corpus.mjs','TRAINING_AND_MODEL_DECISIONS.md')): raise SystemExit('Missing vetted ASR scorer, startup diagnostics or corpus evidence gate')
+              if not all(x in z.namelist() for x in ('src/scoring.mjs','src/startup.mjs','src/benchmark.mjs','src/language_registry.mjs','tools/evaluate_corpus.mjs','tools/stage_phone_observations.mjs','src/staging.mjs','TRAINING_AND_MODEL_DECISIONS.md')): raise SystemExit('Missing vetted ASR scorer, startup diagnostics or corpus evidence gate')
               entries=z.infolist()
               if len(entries)>60: raise SystemExit("Too many archive entries")
               if sum(x.file_size for x in entries)>2000000: raise SystemExit("Unexpected archive size")
