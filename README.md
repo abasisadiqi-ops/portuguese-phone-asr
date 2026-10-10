@@ -1,5 +1,16 @@
 # Portuguese Local ASR Lab — phone-first deployment
 
+## v1.0.37 — editorial UI redesign and expanded language research (NOT DEPLOYED)
+
+**Design correction requested by owner:** previous v1.0.36 was too AI-dashboard-like. v1.0.37 is an editorial instrument with light paper-toned surfaces, strong serif typography, hairline section dividers, square input controls and restrained terracotta recording cue. No copied themes, templates, remote fonts or images. The only animated visual responds to actual recording; reduced-motion support remains. Tested in 390px Chromium, **not yet in Safari on iPhone**.
+
+The public **Portuguese-only** research app includes a disabled-for-ASR registry of **six Modern South Arabian targets** (Mehri, Shehri/Jibbali, Soqotri, Harsusi, Hobyot, Bathari); **nine Southern African Bantu targets** (Sepedi/Northern Sotho, Sesotho, Setswana, Tshivenda, Xitsonga, isiZulu, isiXhosa, siSwati, isiNdebele); and **Afrikaans**, correctly classified as West Germanic and possessing a Whisper `af` language token without phone validation. These are documentation/benchmark targets, not selectable production languages or trained models.
+
+The **private Multilingual Master** has an independent Geʽez vowel archaeology workspace, with earlier consonantal epigraphy, later vowel-order fidäl writing and living Ethiopian/Eritrean liturgical renditions separated. This history module is **NOT included here**. Neither automatically restores ancient vocalization nor authorizes ASR training, and must not be imported into the public repository.
+
+**Gate:** feature branch (historic name `feature/offline-cache-first-startup-v134-20261010`) expects `phone-asr-source-v137.zip` SHA-256 `c1217ab9ae0d46fe6e039c6d42584dc7ab7af6c4174b11f11fe7502c821d45d7`. ZIP is **not yet uploaded**, GitHub production build **not yet run**, feature-branch Pages deployment **prohibited**, and public site remains the working v1.0.33 Tiny/Base release. Local source has **82/82** Node tests and two real-Chromium mock-inference UI checks, plus 12 separate private Geʽez and 10 Hebrew tests. No model training, no new language phone-enabled. Source includes design notes, language/data rights leads and a staged 1–3 month to 24–60+ month dependency-based schedule.
+
+
 ## v1.0.36 pre-release redesign + separate historical Hebrew vocalic track
 
 **Hold release.** The live GitHub Pages site continues to serve the previously verified v1.0.33 Tiny/Base phone app. v1.0.34 and v1.0.35 remain unshipped; this feature branch now stages the latest **v1.0.36** source and workflow. Its branch name keeps `v134` only for PR continuity. The ZIP required for CI is exactly `phone-asr-source-v136.zip` (SHA-256 `ddf803d9740b5de4eb19a4acca5cb820de50fbbbc7cc727123b0e9ce56ebbba6`). Older candidate ZIPs MUST NOT be uploaded.
