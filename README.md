@@ -1,5 +1,18 @@
 # Portuguese Local ASR Lab — phone-first deployment
 
+## v1.0.38 (candidate) — storage, deletion, privacy and lifecycle, no release yet
+
+Owner prioritizes fundamental architecture, not another premature public release. The working public website remains **v1.0.33**. This branch now tests **v1.0.38** (old branch name retained). Expect **`phone-asr-source-v138.zip`** SHA-256 **`002e169d7950c06346c2869849bd996985970b0ac403d1042fae204f885b44c2`** in this feature branch root. Do NOT upload this private Multilingual Master ZIP or a personal recording. ZIP not yet uploaded; GitHub CI and actual Safari execution remain unverified.
+
+This candidate provides: an origin-scoped CacheStorage/IndexedDB/OPFS names-only inventory; estimated quota/persistence request; explicit user-triggered **AES-GCM passphrase-encrypted single recording save/reload/delete** in IndexedDB; typed **`DELETE SAVED CLIP`** confirmation; typed **`DELETE SHARED MODEL CACHE`** confirmation for possible model CacheStorage entries, carefully preserving the versioned offline app shell and unknown caches. CacheStorage deletion is **not** complete model erasure (weights may live in IDB, OPFS or HTTP cache). Other repositories on the same `github.io` origin could share caches, thus the explicit SHARED warning. Lost passphrases have no recovery; offline data may still be evicted. The app never saves voice by default. See `STORAGE_AND_DELETION_ARCHITECTURE.md`.
+
+An actual sample-derived waveform replaces the decorative one; advanced research and setup instructions use progressive disclosure. Frontend logs visible/hidden transitions and stops recording when notified it became hidden. There is an opt-in **foreground-only** Screen Wake Lock where supported. **A Home Screen PWA cannot reliably keep microphone/Whisper processing running in the background or after force-quit.** A separate PRIVATE native iOS architecture track will investigate legitimate AVAudioSession active recording during screen lock, signed native builds and entitlements. Web Push requires user permission and a server; it does not provide continuous offline work. See `BACKGROUND_AND_NATIVE_ROADMAP.md` and `PRODUCT_DESIGN_RESEARCH_v138.md`.
+
+Local source verification: **94/94 Node tests**, **3/3 Chromium 390px browser workflows** (PCM decode and MediaRecorder real, model inference mocked, origin CacheStorage simulated). AES-GCM saving/decrypting and IndexedDB transaction semantics are tested using Node WebCrypto plus an evented fake IDB; **real origin IndexedDB and iPhone persistence are NOT attested** due to administrator restrictions on local browser navigation. Historical Hebrew/Geʽez, original 66-hour state and tutor remain private and intact. No model training, no new phone-enabled languages, and no study credit.
+
+The source workflow is SHA-pinned and **feature-branch publishing is prohibited**. Only manual `main` workflow with explicit deployment can replace public Pages, after separate approval. The original verified Tiny-only rollback workflow remains in `main`.
+
+
 ## v1.0.37 — editorial UI redesign and expanded language research (NOT DEPLOYED)
 
 **Design correction requested by owner:** previous v1.0.36 was too AI-dashboard-like. v1.0.37 is an editorial instrument with light paper-toned surfaces, strong serif typography, hairline section dividers, square input controls and restrained terracotta recording cue. No copied themes, templates, remote fonts or images. The only animated visual responds to actual recording; reduced-motion support remains. Tested in 390px Chromium, **not yet in Safari on iPhone**.
