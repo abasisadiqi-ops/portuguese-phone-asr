@@ -1,5 +1,18 @@
 # Portuguese Local ASR Lab — phone-first deployment
 
+## v1.0.43 — conversation race recovery and ephemeral session metrics (DRAFT)
+
+**No new public release.** The live website remains the previously phone-tested v1.0.33. This feature branch's full-app workflow expects exact **`phone-asr-source-v143.zip`** (92 files), SHA-256 **`929b9bc94ec7cf1f0df6399a34bce6f2509084d5059b2ac0009bef11b51d1c1a`**; the ZIP is not yet uploaded to GitHub, and the production build and eight compiled-app screenshots have not run. Only upload the isolated public-source archive, **not** Multilingual Master private state or any audio.
+
+**Fixed in the candidate:** a stale getUserMedia permission result/cancellation can no longer tear down the stream obtained by a newer Unmute; outstanding request ownership is epoch-scoped and Mute/End invalidate the permission request. A stale generative reply can no longer clear the busy flag for a newer turn, or re-enable a newer UI draft's composer unexpectedly. Fixed detector enforces monotonic timestamps and finite configuration. Four new concurrency-specific tests reproduce the races.
+
+**New privacy architecture:** `src/session_metrics.mjs` records only foreground state transition durations and aggregate completed/failed turn counts; memory-only, no transcript, audio, identifiers, network, retention or study credit. Actual code and four privacy/accounting tests were **also committed directly to `research/v143/` in GitHub**; [the GitHub Actions test run succeeded](https://github.com/abasisadiqi-ops/portuguese-phone-asr/actions/runs/38081597938), and it produced a downloadable text report. This proves the metrics module, not the entire app or real iPhone speech.
+
+Local isolated full-app source passed **163/163 Node tests and six Chromium workflows**, with real browser MediaRecorder but mocked Whisper/Qwen and simulated VAD. The original 66h/72h wake-relative programme and separate historical Hebrew/Geʽez research remain preserved in the private master. No default model or live target languages changed. No background audio entitlement claimed.
+
+After uploading the candidate ZIP to `feature/offline-cache-first-startup-v134-20261010`, manually dispatch the full build with `deploy_pages=false`; the workflow enforces `main`-only publication and requires a Vite production build, 163 tests and **eight real Chromium browser screenshots** under `verba-v143-browser-previews`. Human device testing is required before any merge. See `SESSION_RECOVERY_AND_PRIVACY_v143.md` inside the source package.
+
+
 ## v1.0.42 — adaptive voice safety & GitHub-backed preview gate (DRAFT)
 
 **No release or new model has been deployed.** The existing public iPhone Pages app remains user-verified v1.0.33 Tiny/Base. This development branch has both GitHub-native `research/v142` detector code with an automatically passed, no-deploy [GitHub test run](https://github.com/abasisadiqi-ops/portuguese-phone-asr/actions/runs/38080732219) and an optional adaptive-energy detector in the **separate isolated app source**.
