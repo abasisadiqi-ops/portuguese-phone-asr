@@ -51,14 +51,14 @@ with sync_playwright() as p:
     })()""")
     page.goto(URL,wait_until="networkidle")
     page.locator("#startMic").click()
-    page.locator("#micStatus").get_by_text("Listening",exact=False).wait_for(timeout=12000)
+    page.wait_for_function("document.getElementById('micStatus').textContent.includes('Listening')",timeout=12000)
     assert page.evaluate("window.__streams.length") == 1
     assert page.evaluate("window.__streams[0].getAudioTracks()[0].readyState")=="live"
     page.locator("#muteMic").click()
     assert "Muted" in page.locator("#micStatus").inner_text()
     assert page.evaluate("window.__streams[0].getAudioTracks()[0].readyState")=="ended"
     page.locator("#muteMic").click()
-    page.locator("#micStatus").get_by_text("Listening",exact=False).wait_for(timeout=12000)
+    page.wait_for_function("document.getElementById('micStatus').textContent.includes('Listening')",timeout=12000)
     assert page.evaluate("window.__streams.length")==2
     assert page.evaluate("window.__streams[1].getAudioTracks()[0].readyState")=="live"
     page.locator('[data-tab="read"]').click()
