@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f7f8fa"><meta name="color-scheme" content="light dark"><title>VERBA | Talk</title><link rel="stylesheet" href="./surface.css"></head>
+<body data-theme="light">
+<div class="app" id="app">
+<header class="topbar">
+  <a class="wordmark" href="#talk" aria-label="Verba, Talk">verba<span class="wordmark-mark" aria-hidden="true">.</span></a>
+  <div class="topbar-actions"><span class="context-tag">Research edition</span><button id="themeSwitch" type="button" class="quiet-button" aria-label="Switch to dark mode">Dark</button></div>
+</header>
+<div class="app-main">
+  <main class="mainpanel">
+    <section class="screen" id="view-talk" data-view="talk" aria-labelledby="talkTitle">
+      <div class="screen-intro"><div class="screen-heading"><h1 id="talkTitle">Conversation</h1><span class="scope">Portuguese · experimental</span></div><p>Speak freely. Change the subject whenever you like.</p></div>
+      <div class="quiet-notice" id="engineNote"><span class="notice-dot" aria-hidden="true"></span><span>Interaction preview. The generative speech engine is not connected here.</span></div>
+      <div class="conversation" id="conversation" role="log" aria-live="polite" aria-label="Conversation transcript">
+         <div class="conversation-empty" id="conversationEmpty"><p class="quiet-lead">Your side of the conversation begins here.</p><p>There is no lesson, script or topic to follow. Start the microphone test, or type a thought below.</p></div>
+      </div>
+      <div class="conversation-controls" aria-label="Foreground speaking controls">
+        <div class="audio-status"><span class="mic-indicator" id="micIndicator" aria-hidden="true"></span><span id="micStatus" role="status">Microphone off</span><div class="level-meter" id="levelMeter" aria-label="Live microphone energy"><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="audio-buttons"><button type="button" id="startMic" class="primary-button">Start listening</button><button type="button" id="muteMic" class="neutral-button" disabled>Mute</button><button type="button" id="endMic" class="text-button" disabled>End</button></div>
+        <p class="caption">Foreground mic test only. No speech recognition or AI replies are simulated in this preview. Mute releases the microphone.</p>
+      </div>
+      <form id="messageForm" class="composer" autocomplete="off"><label class="sr-only" for="message">Write a message</label><textarea id="message" dir="auto" lang="pt" rows="2" maxlength="1200" placeholder="Or write something…"></textarea><button type="submit" class="send-button" aria-label="Add message">Add <span aria-hidden="true">↗</span></button></form>
+      <div class="conversation-foot"><span id="conversationCount">0 messages · session only</span><button type="button" id="clearMessages" class="link-button">Clear conversation</button></div>
+    </section>
+    <section class="screen" id="view-speak" data-view="speak" aria-labelledby="speakTitle" hidden>
+      <div class="screen-intro"><h1 id="speakTitle">Speech lab</h1><p>Record, transcribe and compare—without grading pronunciation from recognition errors.</p></div>
+      <div class="content-pad"><h2>Measure what is heard.</h2><p>Whisper Tiny and Base remain in the existing production research app. This branch is a layout and interaction integration preview; it does not load those models.</p><a href="https://abasisadiqi-ops.github.io/portuguese-phone-asr/" target="_blank" rel="noopener noreferrer" class="inline-link">Open the current speech lab ↗</a><div class="subtle-rule"></div><p class="caption">Actual model performance, offline persistence and background behavior are tested separately.</p></div>
+    </section>
+    <section class="screen" id="view-read" data-view="read" aria-labelledby="readTitle" hidden>
+      <div class="screen-intro"><h1 id="readTitle">Reading room</h1><p>Room for the words themselves. Script, period and evidence stay distinct.</p></div>
+      <div class="reading-area"><div class="reading-controls"><label for="scriptSelect">Language specimen</label><select id="scriptSelect"><option value="el">Greek · polytonic</option><option value="ar">Arabic · vocalized</option><option value="he">Hebrew · pointed</option><option value="gez">Geʽez · fidäl</option><option value="pt">Portuguese · Latin</option></select></div>
+      <article class="reading-document" aria-label="Typesetting specimen"><p class="reading-kicker" id="readingLabel">GREEK / SCRIPT STUDY</p><p id="readingSample" lang="grc" dir="ltr" class="reading-sample">λόγος</p><p class="reading-translation" id="readingGloss">An ordinary written Greek word; not evidence for one timeless pronunciation.</p><hr><p class="reading-note">This is a typesetting sample, not a historical attestation. Ancient pronunciation requires independently dated witnesses.</p></article>
+      <p class="caption">Research is separate from modern speech recognition. <a href="https://github.com/abasisadiqi-ops/portuguese-phone-asr/pull/3" target="_blank" rel="noopener noreferrer">Historical Greek research ↗</a></p></div>
+    </section>
+    <section class="screen" id="view-library" data-view="library" aria-labelledby="libraryTitle" hidden><div class="screen-intro"><h1 id="libraryTitle">Library</h1><p>Your recordings and notes should be yours to manage.</p></div><div class="content-pad"><h2>No files saved here.</h2><p>Conversation text and microphone audio are held only while this preview is open. The main application has a separately tested encrypted clip-vault prototype.</p><p class="caption">This view does not inspect, delete or claim to control the production site's browser caches.</p></div></section>
+    <section class="screen" id="view-settings" data-view="settings" aria-labelledby="settingsTitle" hidden><div class="screen-intro"><h1 id="settingsTitle">Preferences</h1><p>Simple controls, explicit privacy boundaries.</p></div><div class="settings-form"><label for="themeSelect">Appearance<select id="themeSelect"><option value="system">Follow device</option><option value="light">Light</option><option value="dark">Dark</option></select></label><label for="typeSelect">Reading type<select id="typeSelect"><option value="normal">Standard</option><option value="large">Larger</option><option value="largest">Largest</option></select></label><div class="subtle-rule"></div><h2>Privacy in this preview</h2><p>No account, analytics, recordings or transcripts are uploaded. Typed messages live in page memory. Appearance may be saved locally; the dialogue model is intentionally absent in this isolated design branch.</p></div></section>
+  </main>
+  <nav class="tabs" id="tabs" aria-label="Primary navigation">
+    <button type="button" class="tab is-current" data-tab="talk" aria-current="page">Talk</button><button type="button" class="tab" data-tab="speak">Speak</button><button type="button" class="tab" data-tab="read">Read</button><button type="button" class="tab" data-tab="library">Library</button><button type="button" class="tab" data-tab="settings">Settings</button>
+  </nav>
+</div>
+</div>
+<script type="module" src="./surface.mjs"></script>
+</body></html>
