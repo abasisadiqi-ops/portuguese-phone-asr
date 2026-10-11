@@ -1,0 +1,55 @@
+name: v145 Actual Interface and Microphone Preview (no deployment)
+on:
+  push:
+    branches: [feature/interaction-surface-v145-20261011]
+    paths:
+      - 'research/interaction-v145/**'
+      - '.github/workflows/research-ui-v145.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify actual source, no private media, no syntax failures
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f research/interaction-v145/index.html
+          test -f research/interaction-v145/surface.css
+          test -f research/interaction-v145/surface.mjs
+          node --check research/interaction-v145/surface.mjs
+          if find research/interaction-v145 -type f \( -iname '*.pdf' -o -iname '*.wav' -o -iname '*.mp3' -o -iname '*.m4a' -o -iname '*.json' -o -iname '*.zip' \) | grep -q .; then
+            echo 'Private corpus or assets inside public UI project'; exit 1
+          fi
+      - name: Install pinned browser test tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/verba-v145-venv
+          /tmp/verba-v145-venv/bin/pip install --disable-pip-version-check playwright==1.55.0
+          /tmp/verba-v145-venv/bin/python -m playwright install --with-deps chromium
+      - name: Render REAL committed interface and verify microphone state transitions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/verba-v145-server.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8765/research/interaction-v145/ >/dev/null; then break; fi
+            sleep 1
+          done
+          VERBA_UI_PREVIEW_DIR=/tmp/verba-v145-screens /tmp/verba-v145-venv/bin/python research/interaction-v145/preview_and_test.py
+          test "$(find /tmp/verba-v145-screens -maxdepth 1 -name '*.png' | wc -l)" -eq 8
+      - name: Upload true Chromium screenshots of committed app UI
+        uses: actions/upload-artifact@v4
+        with:
+          name: verba-v145-actual-interface-light-dark-rtl
+          path: /tmp/verba-v145-screens/*.png
+          retention-days: 14
+          if-no-files-found: error
