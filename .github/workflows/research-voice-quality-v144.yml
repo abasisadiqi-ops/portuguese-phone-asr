@@ -1,0 +1,41 @@
+name: v144 ASR and TTS quality evidence (no deployment)
+on:
+  push:
+    branches:
+      - feature/model-quality-evidence-v144-20261011
+    paths:
+      - 'research/voice-quality-v144/**'
+      - '.github/workflows/research-voice-quality-v144.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify historical/low-resource exclusions and model quality hold
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test research/voice-quality-v144/quality_gate.test.mjs
+          if find research/voice-quality-v144 -type f \( -iname '*.wav' -o -iname '*.mp3' -o -iname '*.m4a' -o -iname '*.mp4' -o -iname '*.pdf' -o -iname '*.json' \) | grep -q .; then
+            echo "Raw voice, private source or user corpus in public model gate"; exit 1
+          fi
+      - name: Create purely synthetic test report
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/voice-research
+          node --test --test-reporter=tap research/voice-quality-v144/quality_gate.test.mjs > /tmp/voice-research/regressions.tap
+          printf 'Model quality v144 = research only\nNo real ASR/TTS inference\nNo device validation\nNo model promotion\nNo deployment\n' > /tmp/voice-research/README.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: voice-model-v144-evidence-gate
+          path: /tmp/voice-research/
+          retention-days: 14
+          if-no-files-found: error
