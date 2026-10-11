@@ -1,0 +1,63 @@
+name: Historical Greek research and voice-model evidence previews (no deploy)
+on:
+  push:
+    branches:
+      - feature/offline-cache-first-startup-v134-20261010
+    paths:
+      - 'research/greek-v144/**'
+      - 'research/voice-quality-v144/**'
+      - '.github/workflows/research-greek-model-v144.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  greek-and-model-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test provenance and anti-fabrication gates
+        run: |
+          set -euo pipefail
+          node --test research/greek-v144/ledger.test.mjs research/voice-quality-v144/quality_gate.test.mjs
+      - name: Verify this public source excludes user media and source books
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find research/greek-v144 research/voice-quality-v144 -type f \( -iname '*.pdf' -o -iname '*.wav' -o -iname '*.mp3' -o -iname '*.m4a' -o -iname '*.mp4' -o -iname '*.json' \) | grep -q .; then
+            echo 'Disallowed raw data or private books in public research lanes'; exit 1
+          fi
+  render-actual-greek-interface:
+    runs-on: ubuntu-latest
+    needs: greek-and-model-policy
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Chromium preview tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/verba-greek-venv
+          /tmp/verba-greek-venv/bin/pip install --disable-pip-version-check playwright==1.55.0
+          /tmp/verba-greek-venv/bin/python -m playwright install --with-deps chromium
+      - name: Serve committed research HTML and capture eight ACTUAL browser previews
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/verba-greek-http.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8765/research/greek-v144/ >/dev/null; then break; fi
+            sleep 1
+          done
+          GREEK_PREVIEW_OUT=/tmp/verba-greek-v144 /tmp/verba-greek-venv/bin/python research/greek-v144/preview.py
+          test "$(find /tmp/verba-greek-v144 -maxdepth 1 -name '*.png' | wc -l)" -eq 8
+      - name: Upload GitHub-rendered Greek research UI, light and dark
+        uses: actions/upload-artifact@v4
+        with:
+          name: verba-greek-v144-github-chromium-previews
+          path: /tmp/verba-greek-v144/*.png
+          retention-days: 14
+          if-no-files-found: error
