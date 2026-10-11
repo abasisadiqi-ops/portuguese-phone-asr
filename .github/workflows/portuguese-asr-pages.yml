@@ -27,16 +27,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '4cfb32e971eca6a1539f42545d99a575b2dc73302af7f9b947eefb7e8c4d9184' 'phone-asr-source-v133.zip' | sha256sum -c -
+          printf '%s  %s\n' '929b9bc94ec7cf1f0df6399a34bce6f2509084d5059b2ac0009bef11b51d1c1a' 'phone-asr-source-v143.zip' | sha256sum -c -
           mkdir -p /tmp/portuguese-asr-pwa
           python3 - <<'PY'
           from pathlib import Path, PurePosixPath
           from zipfile import ZipFile
-          src=Path("phone-asr-source-v133.zip")
+          src=Path("phone-asr-source-v143.zip")
           with ZipFile(src) as z:
-              if 'src/scoring.mjs' not in z.namelist(): raise SystemExit('Missing vetted Tiny/Base scorer')
+              if not all(x in z.namelist() for x in ('src/scoring.mjs','src/startup.mjs','src/benchmark.mjs','src/language_registry.mjs','tools/evaluate_corpus.mjs','tools/stage_phone_observations.mjs','src/staging.mjs','src/model_planning.mjs','DESIGN_AND_MOTION.md','DESIGN_STUDIO_v137.md','LANGUAGE_EXPANSION_AND_DATA_ROADMAP.md','DEVELOPMENT_TIMELINE_2026.md','src/studio.css','src/storage_control.mjs','src/lifecycle.mjs','src/audio_visual.mjs','src/ui_preferences.mjs','src/script_text.mjs','src/presentation.mjs','src/data_contracts.mjs','src/conversation_core.mjs','src/conversation_ui.mjs','src/conversation_voice.mjs','src/local_dialogue_adapter.mjs','src/microphone_lease.mjs','src/speech_output.mjs','src/continuous_session.mjs','src/adaptive_vad.mjs','src/session_metrics.mjs','tests/session_metrics.test.mjs','SESSION_RECOVERY_AND_PRIVACY_v143.md','tests/adaptive_vad.test.mjs','ADAPTIVE_VOICE_ENGINEERING_v142.md','tests/continuous_session.test.mjs','tests/test_handsfree_browser.py','tests/produce_github_previews.py','CONVERSATION_HANDSFREE_ENGINEERING_v141.md','CONVERSATION_AND_VOICE_ARCHITECTURE_v140.md','DESIGN_SYSTEM_v139.md','ARCHITECTURE_FOUNDATION_v139.md','STORAGE_AND_DELETION_ARCHITECTURE.md','BACKGROUND_AND_NATIVE_ROADMAP.md','PRODUCT_DESIGN_RESEARCH_v138.md','MODEL_RESEARCH_v136.md','TRAINING_AND_MODEL_DECISIONS.md')): raise SystemExit('Missing vetted ASR scorer, startup diagnostics or corpus evidence gate')
               entries=z.infolist()
-              if len(entries)>60: raise SystemExit("Too many archive entries")
+              if len(entries)>100: raise SystemExit("Too many archive entries")
               if sum(x.file_size for x in entries)>2000000: raise SystemExit("Unexpected archive size")
               for entry in entries:
                   n=entry.filename
@@ -61,8 +61,66 @@ jobs:
           npm test
           npm run build
           node tools/check_dist.mjs
+          node tools/evaluate_corpus.mjs data/synthetic_manifest_example.json > /tmp/asr-synthetic-audit.json
+          node -e "const a=require('/tmp/asr-synthetic-audit.json');if(a.training_performed!==false||a.model_promoted!==false||a.study_minutes!==0||!Object.keys(a.paired_comparisons).length)process.exit(1)"
           grep -q 'Whisper Base' dist/index.html
+          grep -q 'Talk about' dist/index.html
+          grep -q 'id="conversationVoiceStart"' dist/index.html
+          grep -q 'id="handsfreeStart"' dist/index.html
+          grep -rq 'verba-session-metrics-v1' dist/assets/
+          grep -rq 'requestingTicket' dist/assets/
+          grep -q 'Adaptive (experimental' dist/index.html
+          grep -rq 'detector_mode' dist/assets/
+          grep -q 'id="handsfreeMute"' dist/index.html
+          grep -q 'id="handsfreeAutoSend"' dist/index.html
+          grep -rq 'Hands-free is on' dist/assets/
+          grep -rq 'microphone released' dist/assets/
+          grep -q 'id="conversationVoiceStop"' dist/index.html
+          grep -q 'id="conversationLanguage"' dist/index.html
+          grep -rq 'onnx-community/Qwen2.5-0.5B-Instruct' dist/assets/
+          grep -rq 'verba:conversation-voice-draft' dist/assets/
+          grep -q 'Storage, privacy' dist/index.html
+          grep -q 'NOT A HISTORICAL ATTESTATION' dist/index.html
+          grep -q 'id="appearance"' dist/index.html
+          grep -q 'id="scriptSample"' dist/index.html
+          grep -rq 'verba.pt_asr.ui.v1' dist/assets/
+          grep -q 'DELETE SHARED MODEL CACHE' dist/index.html
+          grep -rq 'encrypted-audio-v1' dist/assets/
+          grep -rq 'microphone_background_supported' dist/assets/
+          find dist/assets -type f -name '*.css' | grep -q .
+          grep -rq 'color-scheme:light' dist/assets/
+          node -e "import('./src/language_registry.mjs').then(x=>{if(!['gdq','shv','sqt','hss','hoh','bhm','nso-ZA','st-ZA','ve-ZA','af-ZA'].every(t=>!x.canEnableOnPhone(t)))process.exit(1)})"
+          grep -rq 'prefers-reduced-motion' dist/assets/
+          grep -q 'Whisper Small' dist/index.html
+          grep -q 'WER / CER' dist/index.html
+          grep -q 'Startup diagnostics' dist/index.html
+          grep -q "navigation_strategy:'cache_first'" dist/sw.js
+          grep -rq 'portuguese-asr-startup-v1' dist/assets/
           grep -rq 'onnx-community/whisper-base' dist/assets/
+
+      - name: Capture real built UI in Chromium (required preview gate; no model inference)
+        shell: bash
+        working-directory: /tmp/portuguese-asr-pwa
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/verba-preview-venv
+          /tmp/verba-preview-venv/bin/pip install --disable-pip-version-check playwright==1.55.0
+          /tmp/verba-preview-venv/bin/python -m playwright install --with-deps chromium
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/verba-preview-server.log 2>&1 &
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 2
+          done
+          PREVIEW_OUT=/tmp/verba-v143-previews /tmp/verba-preview-venv/bin/python tests/produce_github_previews.py
+          test "$(find /tmp/verba-v143-previews -maxdepth 1 -name '*.png' | wc -l)" -eq 8
+
+      - name: Upload browser-rendered design previews (not generated images)
+        uses: actions/upload-artifact@v4
+        with:
+          name: verba-v143-browser-previews
+          path: /tmp/verba-v143-previews/*.png
+          retention-days: 14
+          if-no-files-found: error
 
       - name: Archive build results (not model weights or recordings)
         uses: actions/upload-artifact@v4
@@ -73,17 +131,17 @@ jobs:
           if-no-files-found: error
 
       - name: Configure GitHub Pages
-        if: ${{ inputs.deploy_pages }}
+        if: ${{ inputs.deploy_pages && github.ref == 'refs/heads/main' }}
         uses: actions/configure-pages@v5
 
       - name: Stage website for Pages only when authorized
-        if: ${{ inputs.deploy_pages }}
+        if: ${{ inputs.deploy_pages && github.ref == 'refs/heads/main' }}
         uses: actions/upload-pages-artifact@v4
         with:
           path: /tmp/portuguese-asr-pwa/dist/
 
   publish:
-    if: ${{ inputs.deploy_pages }}
+    if: ${{ inputs.deploy_pages && github.ref == 'refs/heads/main' }}
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15

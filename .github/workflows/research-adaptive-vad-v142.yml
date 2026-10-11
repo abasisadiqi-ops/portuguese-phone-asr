@@ -1,0 +1,35 @@
+name: Adaptive voice safety research (no deployment)
+
+on:
+  push:
+    branches:
+      - feature/offline-cache-first-startup-v134-20261010
+    paths:
+      - 'research/v142/**'
+      - '.github/workflows/research-adaptive-vad-v142.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  detector-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run standalone experimental VAD tests without network models or audio upload
+        run: node --test research/v142/adaptive_vad.test.mjs
+      - name: Reject unexpected private corpus entries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f research/v142/adaptive_vad.mjs
+          test -f research/v142/adaptive_vad.test.mjs
+          if find research/v142 -type f \( -iname '*.wav' -o -iname '*.mp3' -o -iname '*.m4a' -o -iname '*.mp4' -o -iname '*.json' \) | grep -q .; then
+            echo "Private audio or observation file in public research directory"
+            exit 1
+          fi
