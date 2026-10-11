@@ -1,0 +1,74 @@
+name: Historical Greek research + genuine browser previews (no deployment)
+
+on:
+  push:
+    branches:
+      - feature/historical-greek-evidence-v144-20261011
+    paths:
+      - 'research/greek/**'
+      - '.github/workflows/research-greek-v144.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: research-greek-v144
+  cancel-in-progress: false
+
+jobs:
+  greek-evidence-and-previews:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Check out the exact committed Greek interface
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Historical and privacy invariant tests
+        run: node --test research/greek/phonology.test.mjs
+      - name: Reject private manuscripts/audio/learning state from public Greek lane
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f research/greek/index.html
+          test -f research/greek/studio.css
+          test -f research/greek/phonology.mjs
+          if find research/greek -type f \( -iname '*.pdf' -o -iname '*.wav' -o -iname '*.m4a' -o -iname '*.mp3' -o -iname '*.xlsx' -o -iname '*program_state*' \) | grep -q .; then
+            echo 'Private material forbidden in the public Greek preview'; exit 1
+          fi
+      - name: Run a real HTTP-served Chromium interface check and capture 8 screenshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/greek-playwright
+          /tmp/greek-playwright/bin/pip install --disable-pip-version-check playwright==1.55.0
+          /tmp/greek-playwright/bin/python -m playwright install --with-deps chromium
+          python3 -m http.server 8765 --bind 127.0.0.1 -d research/greek > /tmp/greek-preview-server.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8765/ >/dev/null; then break; fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:8765/index.html > /dev/null
+          GREEK_PREVIEW_OUT=/tmp/greek-v144-previews /tmp/greek-playwright/bin/python research/greek/preview_ci.py
+          test "$(find /tmp/greek-v144-previews -name '*.png' | wc -l)" -eq 8
+      - name: Upload actual browser-rendered Greek research screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: greek-v144-chromium-previews
+          path: /tmp/greek-v144-previews/*.png
+          retention-days: 14
+          if-no-files-found: error
+      - name: Upload previewable standalone Greek source (not a deployed site)
+        uses: actions/upload-artifact@v4
+        with:
+          name: greek-v144-source-preview
+          path: |
+            research/greek/index.html
+            research/greek/studio.css
+            research/greek/ui.mjs
+            research/greek/phonology.mjs
+            research/greek/README.md
+          retention-days: 14
+          if-no-files-found: error
