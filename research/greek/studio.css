@@ -29,3 +29,10 @@ h1 em{font-style:normal;color:var(--ink)}
 button,input,textarea,select{border-radius:6px}
 footer{font:12px/1.5 system-ui,sans-serif;border-color:var(--line)}
 @media(max-width:760px){.hero{grid-template-columns:1fr;gap:8px;padding:13px 0 17px}.hero aside{display:none}h1{font-size:28px}.content{grid-template-columns:1fr;gap:12px;padding:28px 0}.intro h2{font-size:23px}.opening{padding-top:15px}.quick{gap:16px}.interlude{padding:18px 0!important}}
+
+/* Break out of former full-bleed editorial margin scheme; preserve 320px viewport. */
+.interlude{margin-inline:0;max-width:100%;min-width:0;grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.periods,.desk,.content,.hero,.source{min-width:0}
+.fields>*{min-width:0}
+input,select,textarea{max-width:100%;min-width:0}
+@media(max-width:760px){.interlude{display:block;grid-template-columns:1fr}.interlude p{grid-column:auto}.quick{flex-wrap:wrap}.period{grid-template-columns:24px minmax(0,1fr) auto}}
